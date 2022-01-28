@@ -129,11 +129,11 @@ for line in open(comfile):
     tmp = line.split(',')
     fid = int(tmp[0])
     com = tmp[1]
-    
+
     c += 1
     if c % 100000 == 0:
         print(c)
-    
+
 
 
     tmp = dats[fid]
@@ -164,5 +164,3 @@ for key, val in textdats.items():
 
 fo.close()
 fo2.close()
-
-
