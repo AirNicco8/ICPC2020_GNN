@@ -14,6 +14,10 @@ df_tr = pd.read_pickle("./dataframes/train_py.pkl")
 df_v = pd.read_pickle("./dataframes/val_py.pkl")
 df_te = pd.read_pickle("./dataframes/test_py.pkl")
 
+df_tr = df_tr['code']
+df_v = df_v['code']
+df_te = df_te['code']
+
 def remove_extra_spaces(text): # reduces more than one space to 1 in graph data
     return re.sub(r"[ ]+", " ",text)
 
@@ -49,12 +53,14 @@ class MyASTParser(): # this class parse python code - using ASTs - to extract gr
         self.graph = nx.Graph()
         self.parser = Parser()
         self.parser.set_language(PY_LANGUAGE)
+        self.code = ''
         global i
         i = 0
         global j
         j = 0
 
     def parse(self, code):
+        self.code = code
         tree = self.parser.parse(bytes(code, "utf8"))
         self.traverse(tree)
 
@@ -68,7 +74,7 @@ class MyASTParser(): # this class parse python code - using ASTs - to extract gr
         return s
 
     def get_data(self,node):
-        text = bytes(up, 'utf-8')[node.start_byte:node.end_byte]
+        text = bytes(self.code, 'utf-8')[node.start_byte:node.end_byte]
         text = text.decode("utf-8")
         return text
 
@@ -104,13 +110,13 @@ class MyASTParser(): # this class parse python code - using ASTs - to extract gr
                     _traverse(child, tmp)
                     j = j+1
                     self.handle_edge_data(child.type, tmp2, tmp)
-                    self.print_node(child, tmp)
+                    #self.print_node(child, tmp)
             else:
                 tmp2 = p
                 tmp = i+j
                 self.handle_node_data(self.get_data(node), tmp)
                 self.handle_edge_data(node.type, tmp2, tmp)
-                self.print_node(node, tmp)
+                #self.print_node(node, tmp)
         root = tree.root_node
         d = 'root'
         self.graph.add_node(0, text=d)
@@ -153,8 +159,16 @@ def proc(split, good_fid, outpath_n, outpath_e): # given the dataframe to proces
 
         nodes = list(graph.nodes.data())
         try:
-            nodes = np.asarray([w2i(x[1]['text']) for x in list(graph.nodes.data())])
+            ns =[]
+            for y in list(graph.nodes.data()):
+                ns.update(y.split())
+            print(ns)
+            nodes = np.asarray([w2i(x[1]['text']) for x in ns])
             edges = nx.adjacency_matrix(graph)
+            if(c % 10000 == 0):
+                print(nodes)
+                print('-'*80)
+                print(edges)
         except:
             eg = nx.Graph()
             eg.add_node(0)
@@ -180,7 +194,7 @@ def proc(split, good_fid, outpath_n, outpath_e): # given the dataframe to proces
     fopn.close()
     fope.close()
 
-smlstok = pickle.load(open('smls.tok', 'rb'), encoding='UTF-8') # !TODO initialize tokenizer for node data
+smlstok = pickle.load(open('output/smls.tok', 'rb'), encoding='UTF-8') # !TODO initialize tokenizer for node data
 
 # here we actually process the data with the functions above
 
