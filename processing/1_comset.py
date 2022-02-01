@@ -2,6 +2,8 @@ import pickle
 import pandas as pd
 import re
 
+# PROCESSING OF COMMENTS
+
 def remove_URL(text):
     """Remove URLs from a text string"""
     return re.sub(r"http\S+", "", text)
@@ -9,12 +11,12 @@ def remove_URL(text):
 def remove_nonascii(text):
     return re.sub(r"[^a-zA-Z0-9/._ ]+", "",text)
 
-def clean(text):
+def clean(text): # clean a given string
     text = remove_URL(text)
     text = remove_nonascii(text)
     return text
 
-def proc(path, ids, df):
+def proc(path, ids, df): # clean the diven dataframes and write the output as datafile
     fo = open(path, 'w')
     for i in ids:
         com = df[i]
@@ -23,15 +25,16 @@ def proc(path, ids, df):
         if com == '':
             continue
         com = com.split()
-        if len(com) > 13 or len(com) < 2:
+        if len(com) > 13 or len(com) < 2: # discard comments which are too long or too short
         	continue
-        if ('Auto' in com) and ('Generated' in com) and ('Code' in com):
+        if ('Auto' in com) and ('Generated' in com) and ('Code' in com): # discard auto Generated comments
             continue
         com = ' '.join(com)
         fo.write('{}, <s> {} </s>\n'.format(i, com))
 
     fo.close()
 
+# loading of data to process
 df_tr = pd.read_pickle('./dataframes/train_py.pkl')
 df_v = pd.read_pickle("dataframes/val_py.pkl")
 df_te = pd.read_pickle("dataframes/test_py.pkl")
@@ -40,6 +43,7 @@ troutfile = './output/train_dataset.coms'
 valoutfile = './output/val_dataset.coms'
 tstoutfile = './output/test_dataset.coms'
 
+#extract the indexes
 df_tr = df_tr['docstring']
 trids = df_tr.index
 df_v = df_v['docstring']
@@ -47,8 +51,7 @@ vids = df_v.index
 df_te = df_te['docstring']
 tsids = df_te.index
 
-print(df_tr[2781])
-
+# process the data
 proc(troutfile, trids, df_tr)
 proc(valoutfile, vids, df_v)
 proc(tstoutfile, tsids, df_te)

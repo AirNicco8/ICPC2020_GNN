@@ -4,8 +4,11 @@ import collections
 import sys
 import pandas as pd
 
+# PROCESSING OF CODE AS TEXT
+
 re_0001_ = re.compile(r'([^a-zA-Z0-9 ])|([a-z0-9_][A-Z])')
 
+# load data to preprocess
 df_tr = pd.read_pickle("./dataframes/train_py.pkl")
 df_v = pd.read_pickle("./dataframes/val_py.pkl")
 df_te = pd.read_pickle("./dataframes/test_py.pkl")
@@ -24,13 +27,13 @@ def re_0002(i):
     else:
         return ' '.format(tmp)
 
-def delete_comment(s):
+def delete_comment(s): #deletes the comment from the function
     s = re.sub(r'(#.*)', '', s)
     s= re.sub(r'(\'\'\')[\s\S]*?(\'\'\')', "", s, re.S)
     s= re.sub(r'(\"\"\")[\s\S]*?(\"\"\")', "", s, re.S)
     return s
 
-def proc(path, ids, df):
+def proc(path, ids, df): # process the text code and dump it in a datafile
     fo = open(path, 'w')
     for i in ids:
         code = df[i]
