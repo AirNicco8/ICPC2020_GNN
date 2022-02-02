@@ -54,12 +54,10 @@ class MyASTParser(): # this class parse python code - using ASTs - to extract gr
         self.parser = Parser()
         self.parser.set_language(PY_LANGUAGE)
         self.code = ''
-        global i
-        i = 0
-        global j
-        j = 0
+        self.i = 0
 
     def parse(self, code):
+        code = self.delete_comment(code)
         self.code = code
         tree = self.parser.parse(bytes(code, "utf8"))
         self.traverse(tree)
@@ -78,48 +76,34 @@ class MyASTParser(): # this class parse python code - using ASTs - to extract gr
         text = text.decode("utf-8")
         return text
 
-    def handle_edge_data(self, data, parent, child):
-        self.graph.add_edge(parent, child, text=data)
-
-    def handle_node_data(self, data, count):
-
-        # first, do dats text preprocessing
-        data = data.lower().rstrip()
+    def handle_data(self, data, parent):
+    # first, do dats text preprocessing
+        data = re_0001_.sub(re_0002, data).lower().rstrip()
         data = remove_extra_spaces(data)
         data = regexes(data)
         data = const_strings(data)
 
-        # second, create a node if there is text
-        if(data != '' '''and len(data)<15'''):
-            #for d in data.split(' '): # each word gets its own node
-            #    if self.is_not_blank(d):
-            #global i
-            self.graph.add_node(count, text=data)
-
+            # second, create a node if there is text
+        if(self.is_not_blank(data)):
+            for d in data.split(' '): # each word gets its own node
+                if self.is_not_blank(d):
+                    self.i = self.i+1
+                    self.graph.add_node(self.i, text=d)
+                    self.graph.add_edge(parent, self.i)
 
     def traverse(self, tree):
         def _traverse(node, p):
-            global i
-            i=i+1
-            if(node.children != []):
-                tmp2 = p
-                global j
-                tmp = i+j
-                self.handle_node_data(self.get_data(node), tmp)
-                for child in node.children:
-                    _traverse(child, tmp)
-                    j = j+1
-                    self.handle_edge_data(child.type, tmp2, tmp)
-                    #self.print_node(child, tmp)
-            else:
-                tmp2 = p
-                tmp = i+j
-                self.handle_node_data(self.get_data(node), tmp)
-                self.handle_edge_data(node.type, tmp2, tmp)
-                #self.print_node(node, tmp)
+            self.i = self.i+1
+            self.graph.add_node(self.i, text=node.type)
+            self.graph.add_edge(p, self.i)
+            tmp = self.i
+            self.handle_data(self.get_data(node), self.i)
+            for child in node.children:
+                _traverse(child, tmp)
+
+                #self.print_node(child, self.i)
         root = tree.root_node
-        d = 'root'
-        self.graph.add_node(0, text=d)
+        self.graph.add_node(0, text='root')
         _traverse(root, 0)
 
     def get_graph(self):
@@ -158,24 +142,21 @@ def proc(split, good_fid, outpath_n, outpath_e): # given the dataframe to proces
         lens.append(len(graph.nodes.data()))
 
         nodes = list(graph.nodes.data())
+
+        #print(nodes)
+        #print('%'*80)
+        #print([w2i(x[1]['text']) for x in list(graph.nodes.data())])
+        #print(nx.adjacency_matrix(graph))
         try:
-            ns =[]
-            for y in list(graph.nodes.data()):
-                ns.update(y.split())
-            print(ns)
-            nodes = np.asarray([w2i(x[1]['text']) for x in ns])
+            nodes = np.asarray([w2i(x[1]['text']) for x in list(graph.nodes.data())])
             edges = nx.adjacency_matrix(graph)
-            if(c % 10000 == 0):
-                print(nodes)
-                print('-'*80)
-                print(edges)
         except:
             eg = nx.Graph()
             eg.add_node(0)
             nodes = np.asarray([0])
             edges = nx.adjacency_matrix(eg)
             blanks += 1
-
+        #print(nodes)
         srcml_nodes[int(fid)] = nodes
         srcml_edges[int(fid)] = edges
 

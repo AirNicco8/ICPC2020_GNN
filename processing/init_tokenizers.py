@@ -2,7 +2,7 @@ from tokenizer import Tokenizer
 import sys
 import pickle
 
-dim = 30000 # !TODO tune this parameter
+dim = 100000 # !TODO tune this parameter
 
 test_dataset = "output/test_dataset.dats"
 train_dataset = "output/train_dataset.dats"
