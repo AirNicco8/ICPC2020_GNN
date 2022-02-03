@@ -48,7 +48,7 @@ def re_0002(i):
 
 re_0001_ = re.compile(r'([^a-zA-Z0-9 ])|([a-z0-9_][A-Z])') # more cleaning
 
-class MyASTParser(): # this class parse python code - using ASTs - to extract graphs
+class MyASTParser(): # this class parse python code - using ASTs - to extract graphs and tokens seq
     def __init__(self):
         self.graph = nx.Graph()
         self.parser = Parser()
@@ -104,7 +104,6 @@ class MyASTParser(): # this class parse python code - using ASTs - to extract gr
             for child in node.children:
                 _traverse(child, tmp)
 
-                #self.print_node(child, self.i)
         root = tree.root_node
         self.graph.add_node(0, text='root')
         _traverse(root, 0)
@@ -115,26 +114,13 @@ class MyASTParser(): # this class parse python code - using ASTs - to extract gr
     def get_seq(self):
         return(self.seq)
 
-def pydecode(unit): # get the graph from a code snippet
+def pydecode(unit): # get seq and graph from a code snippet
     parser = MyASTParser()
     parser.parse(unit)
     return(parser.get_graph(), parser.get_seq())
 
-def w2i(word):
-    try:
-        i = smlstok.w2i[word]
-    except KeyError:
-        i = smlstok.oov_index
-    return i
-
-def proc(split, good_fid, outpath_n, outpath_e): # given the dataframe to process extract graph features to dicts and dump it into a pickle
+def proc(split, good_fid): # given the dataframe to process extract seq and append to text file
     c = 0
-    blanks = 0
-    srcml_nodes = dict()
-    srcml_edges = dict()
-    #print('processing file %s' % (split))
-    fopn = open(outpath_n, 'wb')
-    fope = open(outpath_e, 'wb')
     seqop = open('./output/dataset.srcml.seq', 'a')
 
     for fid in good_fid:
@@ -151,26 +137,7 @@ def proc(split, good_fid, outpath_n, outpath_e): # given the dataframe to proces
 
         c += 1
 
-        lens.append(len(graph.nodes.data()))
-
-        nodes = list(graph.nodes.data())
-
-        #print(nodes)
-        #print('%'*80)
-        #print([w2i(x[1]['text']) for x in list(graph.nodes.data())])
-        #print(nx.adjacency_matrix(graph))
-        try:
-            nodes = np.asarray([w2i(x[1]['text']) for x in list(graph.nodes.data())])
-            edges = nx.adjacency_matrix(graph)
-        except:
-            eg = nx.Graph()
-            eg.add_node(0)
-            nodes = np.asarray([0])
-            edges = nx.adjacency_matrix(eg)
-            blanks += 1
-        #print(nodes)
-        srcml_nodes[int(fid)] = nodes
-        srcml_edges[int(fid)] = edges
+        lens.append(len(seq))
 
         if(c % 10000 == 0):
             print(c)
@@ -181,14 +148,7 @@ def proc(split, good_fid, outpath_n, outpath_e): # given the dataframe to proces
     print('median:', statistics.median(lens))
     print('% abv 200:', sum(i > 200 for i in lens) / len(lens))
 
-    pickle.dump(srcml_nodes, fopn)
-    pickle.dump(srcml_edges, fope)
-
     seqop.close()
-    fopn.close()
-    fope.close()
-
-smlstok = pickle.load(open('output/smls.tok', 'rb'), encoding='UTF-8') # !TODO initialize tokenizer for node data
 
 # here we actually process the data with the functions above
 
@@ -197,13 +157,6 @@ tr_fid = load_good_fid(df_tr)
 v_fid = load_good_fid(df_v)
 te_fid = load_good_fid(df_te)
 
-outtr_n = './output/dataset.tr_nodes.pkl'
-outtr_e = './output/dataset.tr_edges.pkl'
-outv_n = './output/dataset.v_nodes.pkl'
-outv_e = './output/dataset.v_edges.pkl'
-outte_n = './output/dataset.te_nodes.pkl'
-outte_e = './output/dataset.te_edges.pkl'
-
-#proc(df_tr, tr_fid, outtr_n, outtr_e)
-proc(df_v, v_fid, outv_n, outv_e)
-proc(df_te, te_fid, outte_n, outte_e)
+proc(df_tr, tr_fid)
+proc(df_v, v_fid)
+proc(df_te, te_fid)
