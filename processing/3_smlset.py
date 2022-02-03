@@ -55,6 +55,7 @@ class MyASTParser(): # this class parse python code - using ASTs - to extract gr
         self.parser.set_language(PY_LANGUAGE)
         self.code = ''
         self.i = 0
+        self.seq = list()
 
     def parse(self, code):
         code = self.delete_comment(code)
@@ -88,12 +89,14 @@ class MyASTParser(): # this class parse python code - using ASTs - to extract gr
             for d in data.split(' '): # each word gets its own node
                 if self.is_not_blank(d):
                     self.i = self.i+1
+                    self.seq.append(d)
                     self.graph.add_node(self.i, text=d)
                     self.graph.add_edge(parent, self.i)
 
     def traverse(self, tree):
         def _traverse(node, p):
             self.i = self.i+1
+            self.seq.append(node.type)
             self.graph.add_node(self.i, text=node.type)
             self.graph.add_edge(p, self.i)
             tmp = self.i
@@ -109,10 +112,13 @@ class MyASTParser(): # this class parse python code - using ASTs - to extract gr
     def get_graph(self):
         return(self.graph)
 
+    def get_seq(self):
+        return(self.seq)
+
 def pydecode(unit): # get the graph from a code snippet
     parser = MyASTParser()
     parser.parse(unit)
-    return parser.get_graph()
+    return(parser.get_graph(), parser.get_seq())
 
 def w2i(word):
     try:
@@ -126,9 +132,10 @@ def proc(split, good_fid, outpath_n, outpath_e): # given the dataframe to proces
     blanks = 0
     srcml_nodes = dict()
     srcml_edges = dict()
-
+    #print('processing file %s' % (split))
     fopn = open(outpath_n, 'wb')
     fope = open(outpath_e, 'wb')
+    seqop = open('./output/dataset.srcml.seq', 'a')
 
     for fid in good_fid:
         try:
@@ -136,7 +143,12 @@ def proc(split, good_fid, outpath_n, outpath_e): # given the dataframe to proces
         except:
             unit = ''
 
-        graph = pydecode(unit)
+        (graph, seq) = pydecode(unit)
+
+        seq = ' '.join(seq)
+
+        seqop.write(seq)
+
         c += 1
 
         lens.append(len(graph.nodes.data()))
@@ -172,6 +184,7 @@ def proc(split, good_fid, outpath_n, outpath_e): # given the dataframe to proces
     pickle.dump(srcml_nodes, fopn)
     pickle.dump(srcml_edges, fope)
 
+    seqop.close()
     fopn.close()
     fope.close()
 
@@ -192,5 +205,5 @@ outte_n = './output/dataset.te_nodes.pkl'
 outte_e = './output/dataset.te_edges.pkl'
 
 #proc(df_tr, tr_fid, outtr_n, outtr_e)
-#proc(df_v, v_fid, outv_n, outv_e)
+proc(df_v, v_fid, outv_n, outv_e)
 proc(df_te, te_fid, outte_n, outte_e)

@@ -12,5 +12,5 @@ tok = Tokenizer()
 tok.train_from_file(train_dataset, dim)
 tok.update_from_file(val_dataset)
 tok.update_from_file(test_dataset)
-output = 'output/smls.tok'
+output = 'output/tdats.tok'
 tok.save(output)
