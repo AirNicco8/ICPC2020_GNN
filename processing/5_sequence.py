@@ -4,22 +4,20 @@ import sys
 import uuid
 
 comlen = 13
-sdatlen = 20 # average is 8 functions per file
 tdatlen = 100
 smllen = 100 # average is 870
 
 def save(obj, filename):
 	pickle.dump(obj, open(filename, 'wb'))
 
-coms_trainf = './output/coms.train'
-coms_valf = './output/coms.val'
-coms_testf = './output/coms.test'
+coms_trainf = './output/train_dataset.coms'
+coms_valf = './output/valt_dataset.coms'
+coms_testf = './output/test_dataset.coms'
 comlen = comlen
 
-tdats_trainf = './output/tdats.train'
-tdats_valf = './output/tdats.val'
-tdats_testf = './output/tdats.test'
-
+tdats_trainf = './output/train_dataset.dats'
+tdats_valf = './output/val_dataset.dats'
+tdats_testf = './output/test_dataset.dats'
 
 comstok = tokenizer.Tokenizer().load('coms.tok')
 smlstok = tokenizer.Tokenizer().load('smls.tok')
@@ -33,34 +31,12 @@ tdats_val = tdatstok.texts_to_sequences_from_file(tdats_valf, maxlen=tdatlen)
 tdats_test = tdatstok.texts_to_sequences_from_file(tdats_testf, maxlen=tdatlen)
 
 # now split up the srcml asts
-
-srcml_nodes = pickle.load(open('./output/dataset.srcml_nodes.pkl', 'rb'))
-srcml_edges = pickle.load(open('./output/dataset.srcml_edges.pkl', 'rb'))
-
-srcml_train_nodes = dict()
-srcml_train_edges = dict()
-srcml_val_nodes = dict()
-srcml_val_edges = dict()
-srcml_test_nodes = dict()
-srcml_test_edges = dict()
-
-for line in open(tdats_trainf, 'r'):
-    (fid, tdat) = line.split(',')
-    fid = int(fid)
-    srcml_train_nodes[fid] = srcml_nodes[fid]
-    srcml_train_edges[fid] = srcml_edges[fid]
-
-for line in open(sdats_valf, 'r'):
-    (fid, tdat) = line.split(',')
-    fid = int(fid)
-    srcml_val_nodes[fid] = srcml_nodes[fid]
-    srcml_val_edges[fid] = srcml_edges[fid]
-
-for line in open(sdats_testf, 'r'):
-    (fid, tdat) = line.split(',')
-    fid = int(fid)
-    srcml_test_nodes[fid] = srcml_nodes[fid]
-    srcml_test_edges[fid] = srcml_edges[fid]
+srcml_train_nodes = pickle.load(open('./output/dataset.tr_nodes.pkl', 'rb'))
+srcml_train_edges = pickle.load(open('./output/dataset.tr_edges.pkl', 'rb'))
+srcml_val_nodes = pickle.load(open('./output/dataset.v_nodes.pkl', 'rb'))
+srcml_val_edges = pickle.load(open('./output/dataset.v_edges.pkl', 'rb'))
+srcml_test_nodes = pickle.load(open('./output/dataset.te_nodes.pkl', 'rb'))
+srcml_test_edges = pickle.load(open('./output/dataset.te_edges.pkl', 'rb'))
 
 assert len(com_train) == len(tdats_train)
 assert len(com_val) == len(tdats_val)
