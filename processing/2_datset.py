@@ -53,12 +53,17 @@ outfile1 = './output/train_dataset.dats'
 outfile2 = './output/val_dataset.dats'
 outfile3 = './output/test_dataset.dats'
 
-df_tr = df_tr['code']
-trids = df_tr.index
-df_v = df_v['code']
-vids = df_v.index
-df_te = df_te['code']
-tsids = df_te.index
+with open('output/good_ids_tr.pkl', 'rb') as f:
+    trids = pickle.load(f)
+f.close()
+
+with open('output/good_ids_v.pkl', 'rb') as f:
+    vids = pickle.load(f)
+f.close()
+
+with open('output/good_ids_te.pkl', 'rb') as f:
+    teids = pickle.load(f)
+f.close()
 
 proc(outfile1, trids, df_tr)
 proc(outfile2, vids, df_v)

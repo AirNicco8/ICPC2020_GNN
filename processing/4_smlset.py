@@ -30,10 +30,9 @@ def regexes(text): #remove regexes and replace with unique text
     return re.sub(regex, "regex", text)
 
 def load_good_fid(split): # extract indexes from dataframe
-    good_fid = []
-    ids = split.index
-    good_fid = list(ids)
-    return good_fid
+    with open('output/good_ids_{}.pkl'.format(split), 'rb') as f:
+        ret = pickle.load(f)
+    return ret
 
 def re_0002(i):
     # split camel case and remove special characters
@@ -187,9 +186,9 @@ smlstok = pickle.load(open('output/smls.tok', 'rb'), encoding='UTF-8') # !TODO i
 # here we actually process the data with the functions above
 
 lens = list()
-tr_fid = load_good_fid(df_tr)
-v_fid = load_good_fid(df_v)
-te_fid = load_good_fid(df_te)
+tr_fid = load_good_fid('tr')
+v_fid = load_good_fid('v')
+te_fid = load_good_fid('te')
 
 outtr_n = './output/dataset.tr_nodes.pkl'
 outtr_e = './output/dataset.tr_edges.pkl'

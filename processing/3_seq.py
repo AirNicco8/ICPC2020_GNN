@@ -30,10 +30,9 @@ def regexes(text): #remove regexes and replace with unique text
     return re.sub(regex, "regex", text)
 
 def load_good_fid(split): # extract indexes from dataframe
-    good_fid = []
-    ids = split.index
-    good_fid = list(ids)
-    return good_fid
+    with open('output/good_ids_{}.pkl'.format(split), 'rb') as f:
+        ret = pickle.load(f)
+    return ret
 
 def re_0002(i):
     # split camel case and remove special characters
@@ -153,9 +152,9 @@ def proc(split, good_fid): # given the dataframe to process extract seq and appe
 # here we actually process the data with the functions above
 
 lens = list()
-tr_fid = load_good_fid(df_tr)
-v_fid = load_good_fid(df_v)
-te_fid = load_good_fid(df_te)
+tr_fid = load_good_fid('tr')
+v_fid = load_good_fid('v')
+te_fid = load_good_fid('te')
 
 proc(df_tr, tr_fid)
 proc(df_v, v_fid)

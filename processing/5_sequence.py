@@ -11,7 +11,7 @@ def save(obj, filename):
 	pickle.dump(obj, open(filename, 'wb'))
 
 coms_trainf = './output/train_dataset.coms'
-coms_valf = './output/valt_dataset.coms'
+coms_valf = './output/val_dataset.coms'
 coms_testf = './output/test_dataset.coms'
 comlen = comlen
 
@@ -19,8 +19,8 @@ tdats_trainf = './output/train_dataset.dats'
 tdats_valf = './output/val_dataset.dats'
 tdats_testf = './output/test_dataset.dats'
 
-comstok = tokenizer.Tokenizer().load('coms.tok')
-smlstok = tokenizer.Tokenizer().load('smls.tok')
+comstok = tokenizer.Tokenizer().load('output/coms.tok')
+smlstok = tokenizer.Tokenizer().load('output/smls.tok')
 tdatstok = smlstok # same tokenizer for smls and tdats so we can share embedding
 
 com_train = comstok.texts_to_sequences_from_file(coms_trainf, maxlen=comlen)
