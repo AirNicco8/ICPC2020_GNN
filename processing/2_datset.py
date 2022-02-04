@@ -13,6 +13,10 @@ df_tr = pd.read_pickle("./dataframes/train_py.pkl")
 df_v = pd.read_pickle("./dataframes/val_py.pkl")
 df_te = pd.read_pickle("./dataframes/test_py.pkl")
 
+df_tr = df_tr['code']
+df_v = df_v['code']
+df_te = df_te['code']
+
 def load(filename):
     return pickle.load(open(filename, 'rb'))
 
