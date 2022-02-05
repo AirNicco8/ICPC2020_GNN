@@ -4,6 +4,7 @@ import pickle
 import random
 import sys
 import time
+import tokenizer
 import traceback
 import numpy as np
 import tensorflow as tf

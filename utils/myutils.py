@@ -1,5 +1,6 @@
 import random
 import sys
+import tensorflow as tf
 from timeit import default_timer as timer
 
 import keras
@@ -36,7 +37,7 @@ def seq2sent(seq, tokenizer):
 
     return(' '.join(sent))
             
-class batch_gen(keras.utils.Sequence):
+class batch_gen(tf.keras.utils.Sequence):
     def __init__(self, seqdata, tt, config, nodedata=None, edgedata=None):
         self.comvocabsize = config['comvocabsize']
         self.tt = tt
